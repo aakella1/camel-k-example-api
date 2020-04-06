@@ -64,26 +64,16 @@ access all Camel K features.
 
 ## 1. Preparing a new OpenShift project
 
-We'll setup a new project called `camel-api` where we'll run the integrations.
-
-To create the project, open a terminal tab and type the following command:
+Go to your working project, open a terminal tab and type the following command:
 
 
 ```
-oc new-project camel-api
+oc project userX
 ```
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-project%20camel-api&completion=New%20project%20creation. "Opens a new terminal and sends the command above"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-project%20camel-basic&completion=New%20project%20creation. "Opens a new terminal and sends the command above"){.didact})
 
 
-Upon successful creation, you should ensure that the Camel K operator is installed. We'll use the `kamel` CLI to do it:
 
-```
-kamel install --trait-profile OpenShift
-```
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$kamel%20install%20--trait-profile%20OpenShift&completion=Camel%20K%20operator%20installation. "Opens a new terminal and sends the command above"){.didact})
-
-NOTE: We use the `OpenShift` trait profile to make the quickstart work on plain OpenShift, without Knative features. We'll enable Knative features in the last part
-of the quickstart.
 
 Camel K should have created an IntegrationPlatform custom resource in your project. To verify it:
 
