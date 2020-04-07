@@ -1,13 +1,13 @@
 # Camel K API Example
- 
+
 ![Camel K CI](https://github.com/openshift-integration/camel-k-example-api/workflows/Camel%20K%20CI/badge.svg)
 
-This example demonstrates how to write an API based Camel K integration, from the design of the OpenAPI definition 
+This example demonstrates how to write an API based Camel K integration, from the design of the OpenAPI definition
 to the implementation of the specific endpoints.
 
 In this specific example, the API enables users to store generic objects, such as files, in a backend system, allowing all CRUD operation on them.
 
-The backend is an Amazon AWS S3 bucket that you might provide. In alternative, you'll be given instructions on how to 
+The backend is an Amazon AWS S3 bucket that you might provide. In alternative, you'll be given instructions on how to
 create a simple [Minio](https://min.io/) backend, which uses a S3 compatible protocol.
 
 
@@ -54,7 +54,7 @@ You need to connect to an OpenShift cluster in order to run the examples.
 
 **Apache Camel K CLI ("kamel")**
 
-Apart from the support provided by the VS Code extension, you also need the Apache Camel K CLI ("kamel") in order to 
+Apart from the support provided by the VS Code extension, you also need the Apache Camel K CLI ("kamel") in order to
 access all Camel K features.
 
 [Check if the Apache Camel K CLI ("kamel") is installed](didact://?commandId=vscode.didact.requirementCheck&text=kamel-requirements-status$$kamel%20version$$Camel%20K%20Client&completion=Apache%20Camel%20K%20CLI%20is%20available%20on%20this%20system. "Tests to see if `kamel version` returns a result"){.didact}
@@ -68,9 +68,16 @@ Go to your working project, open a terminal tab and type the following command:
 
 
 ```
-oc project userX
+oc project userX-lab-2
 ```
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-project%20camel-basic&completion=New%20project%20creation. "Opens a new terminal and sends the command above"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20project%20userX-lab-2&completion=Use%20your%20namespace. "Opens a new terminal and sends the command above"){.didact})
+
+You should ensure that the Camel K operator is installed. We'll use the `kamel` CLI to do it:
+
+```
+kamel install --skip-operator-setup --skip-cluster-setup --trait-profile OpenShift
+```
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$kamel%20install%20--skip-operator-setup%20--skip-cluster-setup%20--trait-profile%20OpenShift&completion=Camel%20K%20platform%20installation. "Opens a new terminal and sends the command above"){.didact})
 
 
 
@@ -82,13 +89,13 @@ oc get integrationplatform
 ```
 ([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20get%20integrationplatform&completion=Camel%20K%20integration%20platform%20verification. "Opens a new terminal and sends the command above"){.didact})
 
-If everything is ok, you should see an IntegrationPlatform named `camel-k` with phase `Ready` (it can take some time for the 
+If everything is ok, you should see an IntegrationPlatform named `camel-k` with phase `Ready` (it can take some time for the
 operator to being installed).
 
 
 ## 2. Configuring the object storage backend
 
-You have two alternative options for setting up the S3 backend that will be used to store the objects via the Camel K API: 
+You have two alternative options for setting up the S3 backend that will be used to store the objects via the Camel K API:
 you can use an existing S3 bucket of your own or you can set up a local S3 compatible object storage.
 
 ### 2.1 I don't have a S3 bucket: let's install a Minio backend
@@ -96,7 +103,7 @@ you can use an existing S3 bucket of your own or you can set up a local S3 compa
 The `test` directory contains an all-in-one configuration file for creating a Minio backend that will provide a S3 compatible protocol
 for storing the objects.
 
-Open the ([test/minio.yaml](didact://?commandId=vscode.open&projectFilePath=test/minio.yaml "Opens the Minio configuration"){.didact}) file to check its content before applying.
+Open the ([test/minio.yaml](didact://?commandId=vscode.open&projectFilePath=../camel-k-example-api/test/minio.yaml "Opens the Minio configuration"){.didact}) file to check its content before applying.
 
 To create the minio backend, just apply the provided file:
 
@@ -109,15 +116,15 @@ That's enough to have a test object storage to use with the API integration.
 
 ### 2.1 I have a S3 bucket
 
-If you have a S3 bucket and you want to use it instead of the test backend, you can do it. The only 
+If you have a S3 bucket and you want to use it instead of the test backend, you can do it. The only
 things that you need to provide are a **AWS Access Key ID and Secret** that you can obtain from the Amazon AWS console.
 
-Edit the ([s3.properties](didact://?commandId=vscode.open&projectFilePath=s3.properties "Opens the S3 configuration"){.didact}) to set the right value for the properties `camel.component.aws-s3.access-key` and `camel.component.aws-s3.secret-key`.
+Edit the ([s3.properties](didact://?commandId=vscode.open&projectFilePath=../camel-k-example-api/s3.properties "Opens the S3 configuration"){.didact}) to set the right value for the properties `camel.component.aws-s3.access-key` and `camel.component.aws-s3.secret-key`.
 Those properties will be automatically injected into the Camel `aw3-s3` component.
 
 ## 3. Designing the API
 
-An object store REST API is provided in the [openapi.yaml](didact://?commandId=vscode.open&projectFilePath=openapi.yaml "Opens the OpenAPI definition"){.didact} file.
+An object store REST API is provided in the [openapi.yaml](didact://?commandId=vscode.open&projectFilePath=../camel-k-example-api/openapi.yaml "Opens the OpenAPI definition"){.didact} file.
 
 It contains operations for:
 - Listing the name of the contained objects
@@ -130,7 +137,7 @@ The file can be edited manually or better using an online editor, such as [Apicu
 ## 4. Running the API integration
 
 The endpoints defined in the API can be implemented in a Camel K integration using a `direct:<operationId>` endpoint.
-This has been implemented in the [API.java](didact://?commandId=vscode.open&projectFilePath=API.java "Opens the integration file"){.didact} file.
+This has been implemented in the [API.java](didact://?commandId=vscode.open&projectFilePath=../camel-k-example-api/API.java "Opens the integration file"){.didact} file.
 
 To run the integration, you need to link it to the proper configuration, that depends on what configuration you've chosen.
 
@@ -145,7 +152,7 @@ kamel run API.java --property-file s3.properties --open-api openapi.yaml -d came
 
 ### 4.2 Using the test Minio server
 
-As alternative, to connect the integration to the **test Minio server** deployed before using the [test/MinioCustomizer.java](didact://?commandId=vscode.open&projectFilePath=test/MinioCustomizer.java "Opens the customizer file"){.didact} class:
+As alternative, to connect the integration to the **test Minio server** deployed before using the [test/MinioCustomizer.java](didact://?commandId=vscode.open&projectFilePath=../camel-k-example-api/test/MinioCustomizer.java "Opens the customizer file"){.didact} class:
 
 ```
 kamel run --name api test/MinioCustomizer.java API.java --property-file test/minio.properties --open-api openapi.yaml -d camel-openapi-java
@@ -291,7 +298,7 @@ Calling the API again will make the pod appear to serve the request.
 
 This optional step allows you to expose the integration in the 3scale API management solution.
 
-Ensure that 3scale is installed and watches the current namespace. We're going to add annotations to the service to allow 3scale to discover the integration 
+Ensure that 3scale is installed and watches the current namespace. We're going to add annotations to the service to allow 3scale to discover the integration
 and manage it. This process is accomplished via the `3scale` trait in Camel K.
 
 ### 7.1 Using the S3 service
